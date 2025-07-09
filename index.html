@@ -2,38 +2,16 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>📱 Gestor de Tareas</title>
     
     <!-- PWA Meta Tags -->
-    <meta name="description" content="Gestor de tareas con alertas personalizadas para iPhone">
+    <meta name="description" content="Gestor de tareas con alertas personalizadas">
     <meta name="theme-color" content="#3b82f6">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Gestor Tareas">
     
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📱</text></svg>">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📱</text></svg>">
-    
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="data:application/json,{
-        'name': 'Gestor de Tareas',
-        'short_name': 'Tareas',
-        'description': 'Gestiona tus tareas con alertas personalizadas',
-        'start_url': './',
-        'display': 'standalone',
-        'background_color': '#f0f7ff',
-        'theme_color': '#3b82f6',
-        'icons': [
-            {
-                'src': 'data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'><text y=\'.9em\' font-size=\'90\'>📱</text></svg>',
-                'sizes': '192x192',
-                'type': 'image/svg+xml'
-            }
-        ]
-    }">
-
     <style>
         * {
             margin: 0;
@@ -46,9 +24,6 @@
             background: linear-gradient(135deg, #f0f7ff 0%, #e0f2fe 100%);
             min-height: 100vh;
             padding: 16px;
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            user-select: none;
         }
 
         .container {
@@ -107,7 +82,6 @@
         .tab-button.active {
             background: #3b82f6;
             color: white;
-            transform: scale(1.02);
         }
 
         .tab-button:not(.active) {
@@ -131,7 +105,6 @@
             border-radius: 16px;
             padding: 20px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .calendar-header {
@@ -178,10 +151,6 @@
             width: 50px;
         }
 
-        .nav-button:active {
-            transform: scale(0.95);
-        }
-
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
@@ -207,12 +176,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
             font-size: 14px;
-            position: relative;
             min-height: 50px;
-        }
-
-        .day-cell:active {
-            transform: scale(0.95);
         }
 
         .day-cell.today {
@@ -224,7 +188,6 @@
         .day-cell.selected {
             background: #3b82f6;
             color: white;
-            transform: scale(1.05);
         }
 
         .day-cell.empty {
@@ -263,31 +226,24 @@
             border-radius: 12px;
             font-size: 16px;
             background: #f9fafb;
-            transition: all 0.3s ease;
         }
 
         .task-input:focus {
             outline: none;
             border-color: #3b82f6;
             background: white;
-            transform: scale(1.02);
         }
 
         .add-button {
             padding: 12px 16px;
-            background: linear-gradient(135deg, #10b981, #059669);
+            background: #10b981;
             color: white;
             border: none;
             border-radius: 12px;
             cursor: pointer;
             font-size: 14px;
             font-weight: 600;
-            transition: all 0.3s ease;
             white-space: nowrap;
-        }
-
-        .add-button:active {
-            transform: scale(0.95);
         }
 
         .task-list {
@@ -303,12 +259,11 @@
             border: 2px solid #f3f4f6;
             border-radius: 12px;
             margin-bottom: 8px;
-            transition: all 0.3s ease;
             background: #fafbfc;
         }
 
         .task-item.completed {
-            background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
+            background: #f0fdf4;
             border-color: #bbf7d0;
         }
 
@@ -321,7 +276,6 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s ease;
             font-size: 14px;
         }
 
@@ -329,14 +283,12 @@
             background: #10b981;
             border-color: #10b981;
             color: white;
-            transform: scale(1.1);
         }
 
         .task-text {
             flex: 1;
             cursor: pointer;
             font-size: 16px;
-            line-height: 1.4;
         }
 
         .task-text.completed {
@@ -356,15 +308,10 @@
             background: none;
             cursor: pointer;
             border-radius: 8px;
-            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 16px;
-        }
-
-        .action-button:active {
-            transform: scale(0.9);
         }
 
         .edit-button {
@@ -390,7 +337,7 @@
         }
 
         .ios-notice {
-            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+            background: #dbeafe;
             border: 2px solid #3b82f6;
             border-radius: 16px;
             padding: 20px;
@@ -408,25 +355,19 @@
             color: #1e40af;
             font-size: 14px;
             margin-bottom: 8px;
-            line-height: 1.5;
         }
 
         .export-button {
             width: 100%;
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            background: #3b82f6;
             color: white;
             border: none;
             padding: 16px;
             border-radius: 12px;
             cursor: pointer;
             margin-top: 16px;
-            transition: all 0.3s ease;
             font-size: 16px;
             font-weight: 600;
-        }
-
-        .export-button:active {
-            transform: scale(0.98);
         }
 
         .alert-section {
@@ -465,7 +406,7 @@
             justify-content: space-between;
             align-items: center;
             padding: 16px;
-            background: linear-gradient(135deg, #f9fafb, #f3f4f6);
+            background: #f9fafb;
             border-radius: 12px;
             margin-bottom: 8px;
             border: 1px solid #e5e7eb;
@@ -490,7 +431,6 @@
             padding: 20px 12px;
             text-align: center;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .stat-number {
@@ -511,31 +451,6 @@
 
         .hidden {
             display: none;
-        }
-
-        /* Animaciones */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .task-item {
-            animation: fadeIn 0.3s ease;
-        }
-
-        /* Scroll personalizado */
-        .task-list::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        .task-list::-webkit-scrollbar-track {
-            background: #f1f5f9;
-            border-radius: 4px;
-        }
-
-        .task-list::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 4px;
         }
     </style>
 </head>
@@ -602,7 +517,7 @@
                 
                 <div id="ios-notice" class="ios-notice hidden">
                     <h4>📱 Para iPhone/iPad:</h4>
-                    <p><strong>1.</strong> Abre Safari → Toca el botón "Compartir" (📤)</p>
+                    <p><strong>1.</strong> Abre Safari → Toca "Compartir" (📤)</p>
                     <p><strong>2.</strong> Selecciona "Añadir a pantalla de inicio"</p>
                     <p><strong>3.</strong> La app se instalará como aplicación nativa</p>
                     <p><strong>4.</strong> Las alertas aparecerán cuando tengas la app abierta</p>
@@ -618,16 +533,6 @@
                         <button class="add-button" onclick="addAlertTime()">Agregar</button>
                     </div>
                     <div id="alert-times"></div>
-                </div>
-
-                <div class="alert-section">
-                    <h4>💡 Consejos para iPhone:</h4>
-                    <div style="background: #f8fafc; padding: 16px; border-radius: 12px; border: 1px solid #e2e8f0;">
-                        <p style="color: #475569; font-size: 14px; margin-bottom: 8px;">• Mantén la app abierta para recibir alertas</p>
-                        <p style="color: #475569; font-size: 14px; margin-bottom: 8px;">• Usa "Exportar" para crear recordatorios en Calendario</p>
-                        <p style="color: #475569; font-size: 14px; margin-bottom: 8px;">• Añade la app a tu pantalla de inicio</p>
-                        <p style="color: #475569; font-size: 14px;">• Funciona sin conexión a internet</p>
-                    </div>
                 </div>
             </div>
         </div>
@@ -652,18 +557,41 @@
         // Estado global de la aplicación
         let currentDate = new Date();
         let selectedDate = new Date();
-        let tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
-        let alertTimes = JSON.parse(localStorage.getItem('alertTimes') || '["09:00", "13:00", "18:00"]');
+        let tasks = [];
+        let alertTimes = ['09:00', '13:00', '18:00'];
         let isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+        // Cargar datos del localStorage
+        function loadData() {
+            try {
+                const savedTasks = localStorage.getItem('tasks');
+                const savedAlerts = localStorage.getItem('alertTimes');
+                
+                if (savedTasks) {
+                    tasks = JSON.parse(savedTasks);
+                }
+                if (savedAlerts) {
+                    alertTimes = JSON.parse(savedAlerts);
+                }
+            } catch (e) {
+                console.log('Error loading data:', e);
+            }
+        }
 
         // Guardar datos en localStorage
         function saveData() {
-            localStorage.setItem('tasks', JSON.stringify(tasks));
-            localStorage.setItem('alertTimes', JSON.stringify(alertTimes));
+            try {
+                localStorage.setItem('tasks', JSON.stringify(tasks));
+                localStorage.setItem('alertTimes', JSON.stringify(alertTimes));
+            } catch (e) {
+                console.log('Error saving data:', e);
+            }
         }
 
         // Inicialización
         document.addEventListener('DOMContentLoaded', function() {
+            loadData();
+            
             if (isIOS) {
                 document.getElementById('ios-notice').classList.remove('hidden');
             }
@@ -673,11 +601,6 @@
             updateAlertTimes();
             updateStats();
             startAlertChecker();
-            
-            // Registrar Service Worker para PWA
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('data:text/javascript,console.log("SW registered")');
-            }
         });
 
         // Navegación de pestañas
@@ -723,7 +646,7 @@
             title.textContent = currentDate.toLocaleDateString('es-ES', { 
                 month: 'long', 
                 year: 'numeric' 
-            }).replace(/^\w/, c => c.toUpperCase());
+            });
 
             const daysContainer = document.getElementById('calendar-days');
             daysContainer.innerHTML = '';
@@ -760,11 +683,11 @@
                 if (dayTasks.length > 0) {
                     const taskCount = document.createElement('div');
                     taskCount.className = 'task-count';
-                    taskCount.textContent = `${dayTasks.length}`;
+                    taskCount.textContent = dayTasks.length.toString();
                     dayElement.appendChild(taskCount);
                 }
 
-                dayElement.onclick = () => {
+                dayElement.onclick = function() {
                     selectedDate = new Date(dayDate);
                     updateCalendar();
                     updateTaskList();
@@ -790,8 +713,7 @@
                 id: Date.now(),
                 text: taskText,
                 date: selectedDate.toISOString().split('T')[0],
-                completed: false,
-                createdAt: new Date().toISOString()
+                completed: false
             };
 
             tasks.push(task);
@@ -810,7 +732,7 @@
 
         function toggleTask(id) {
             tasks = tasks.map(task => 
-                task.id === id ? { ...task, completed: !task.completed } : task
+                task.id === id ? Object.assign({}, task, {completed: !task.completed}) : task
             );
             saveData();
             updateTaskList();
@@ -831,7 +753,7 @@
             const newText = prompt('Editar tarea:', task.text);
             if (newText && newText.trim()) {
                 tasks = tasks.map(t => 
-                    t.id === id ? { ...t, text: newText.trim() } : t
+                    t.id === id ? Object.assign({}, t, {text: newText.trim()}) : t
                 );
                 saveData();
                 updateTaskList();
@@ -842,10 +764,10 @@
             const taskList = document.getElementById('task-list');
             const title = document.getElementById('task-date-title');
             
-            title.textContent = `Tareas para ${selectedDate.toLocaleDateString('es-ES', { 
+            title.textContent = 'Tareas para ' + selectedDate.toLocaleDateString('es-ES', { 
                 day: 'numeric', 
                 month: 'long' 
-            })}`;
+            });
 
             const dayTasks = getTasksForDate(selectedDate);
             
@@ -854,18 +776,21 @@
                 return;
             }
 
-            taskList.innerHTML = dayTasks.map(task => `
-                <div class="task-item ${task.completed ? 'completed' : ''}">
-                    <div class="task-checkbox ${task.completed ? 'checked' : ''}" onclick="toggleTask(${task.id})">
-                        ${task.completed ? '✓' : ''}
-                    </div>
-                    <div class="task-text ${task.completed ? 'completed' : ''}">${task.text}</div>
-                    <div class="task-actions">
-                        <button class="action-button edit-button" onclick="editTask(${task.id})">✏️</button>
-                        <button class="action-button delete-button" onclick="deleteTask(${task.id})">🗑️</button>
-                    </div>
-                </div>
-            `).join('');
+            let html = '';
+            dayTasks.forEach(function(task) {
+                html += '<div class="task-item ' + (task.completed ? 'completed' : '') + '">';
+                html += '<div class="task-checkbox ' + (task.completed ? 'checked' : '') + '" onclick="toggleTask(' + task.id + ')">';
+                html += task.completed ? '✓' : '';
+                html += '</div>';
+                html += '<div class="task-text ' + (task.completed ? 'completed' : '') + '">' + task.text + '</div>';
+                html += '<div class="task-actions">';
+                html += '<button class="action-button edit-button" onclick="editTask(' + task.id + ')">✏️</button>';
+                html += '<button class="action-button delete-button" onclick="deleteTask(' + task.id + ')">🗑️</button>';
+                html += '</div>';
+                html += '</div>';
+            });
+            
+            taskList.innerHTML = html;
         }
 
         // Gestión de alertas
@@ -873,7 +798,7 @@
             const input = document.getElementById('new-alert-time');
             const time = input.value;
             
-            if (time && !alertTimes.includes(time)) {
+            if (time && alertTimes.indexOf(time) === -1) {
                 alertTimes.push(time);
                 alertTimes.sort();
                 input.value = '';
@@ -892,43 +817,39 @@
 
         function updateAlertTimes() {
             const container = document.getElementById('alert-times');
-            container.innerHTML = alertTimes.map(time => `
-                <div class="alert-item">
-                    <span>🕐 ${time}</span>
-                    <button class="action-button delete-button" onclick="removeAlertTime('${time}')">🗑️</button>
-                </div>
-            `).join('');
+            let html = '';
+            
+            alertTimes.forEach(function(time) {
+                html += '<div class="alert-item">';
+                html += '<span>🕐 ' + time + '</span>';
+                html += '<button class="action-button delete-button" onclick="removeAlertTime(\'' + time + '\')">🗑️</button>';
+                html += '</div>';
+            });
+            
+            container.innerHTML = html;
         }
 
         // Sistema de alertas
         function startAlertChecker() {
-            setInterval(() => {
+            setInterval(function() {
                 const now = new Date();
                 const currentTime = now.toTimeString().slice(0, 5);
                 
-                if (alertTimes.includes(currentTime)) {
+                if (alertTimes.indexOf(currentTime) !== -1) {
                     const today = new Date();
-                    const todayTasks = tasks.filter(task => {
+                    const todayTasks = tasks.filter(function(task) {
                         const taskDate = new Date(task.date);
                         return taskDate.toDateString() === today.toDateString() && !task.completed;
                     });
 
                     if (todayTasks.length > 0) {
-                        const message = `🔔 ¡Tienes ${todayTasks.length} tarea(s) pendiente(s) para hoy!`;
-                        const taskList = todayTasks.map(task => `• ${task.text}`).join('\n');
+                        const message = '🔔 ¡Tienes ' + todayTasks.length + ' tarea(s) pendiente(s) para hoy!';
+                        let taskList = '';
+                        todayTasks.forEach(function(task) {
+                            taskList += '• ' + task.text + '\n';
+                        });
                         
-                        if (isIOS) {
-                            alert(`${message}\n\nTareas:\n${taskList}`);
-                        } else {
-                            if (Notification.permission === 'granted') {
-                                new Notification(message, {
-                                    body: taskList.slice(0, 100) + '...',
-                                    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🔔</text></svg>'
-                                });
-                            } else if (Notification.permission !== 'denied') {
-                                Notification.requestPermission();
-                            }
-                        }
+                        alert(message + '\n\nTareas:\n' + taskList);
                     }
                 }
             }, 60000); // Revisar cada minuto
@@ -939,23 +860,22 @@
             const incompleteTasks = tasks.filter(task => !task.completed);
             let calendarData = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//TaskApp//TaskApp//EN\n";
             
-            incompleteTasks.forEach(task => {
+            incompleteTasks.forEach(function(task) {
                 const date = new Date(task.date);
                 const dateString = date.toISOString().slice(0, 10).replace(/-/g, '');
                 
-                calendarData += `BEGIN:VEVENT\n`;
-                calendarData += `DTSTART:${dateString}T090000\n`;
-                calendarData += `DTEND:${dateString}T093000\n`;
-                calendarData += `SUMMARY:📝 ${task.text}\n`;
-                calendarData += `DESCRIPTION:Tarea pendiente del Gestor de Tareas\n`;
-                calendarData += `UID:task-${task.id}@taskapp.com\n`;
-                calendarData += `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').split('.')[0]}Z\n`;
-                calendarData += `END:VEVENT\n`;
+                calendarData += "BEGIN:VEVENT\n";
+                calendarData += "DTSTART:" + dateString + "T090000\n";
+                calendarData += "DTEND:" + dateString + "T093000\n";
+                calendarData += "SUMMARY:📝 " + task.text + "\n";
+                calendarData += "DESCRIPTION:Tarea pendiente del Gestor de Tareas\n";
+                calendarData += "UID:task-" + task.id + "@taskapp.com\n";
+                calendarData += "END:VEVENT\n";
             });
             
             calendarData += "END:VCALENDAR";
             
-            const blob = new Blob([calendarData], { type: 'text/calendar;charset=utf-8' });
+            const blob = new Blob([calendarData], { type: 'text/calendar' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -973,15 +893,6 @@
             document.getElementById('pending-count').textContent = tasks.filter(t => !t.completed).length;
             document.getElementById('completed-count').textContent = tasks.filter(t => t.completed).length;
             document.getElementById('alerts-count').textContent = alertTimes.length;
-        }
-
-        // Solicitar permisos de notificación al cargar
-        if ('Notification' in window && Notification.permission === 'default' && !isIOS) {
-            setTimeout(() => {
-                if (confirm('¿Quieres recibir notificaciones de tus tareas?')) {
-                    Notification.requestPermission();
-                }
-            }, 2000);
         }
     </script>
 </body>
