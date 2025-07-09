@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, Plus, Bell, Settings, CheckCircle2, Trash2, Edit3 } from 'lucide-react';
+import { Calendar, Clock, Plus, Bell, Settings, CheckCircle2, Trash2, Edit3, Download, Smartphone } from 'lucide-react';
 
 const TaskAlertApp = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -11,8 +11,16 @@ const TaskAlertApp = () => {
   const [activeTab, setActiveTab] = useState('calendar');
   const [editingTask, setEditingTask] = useState(null);
   const [notifications, setNotifications] = useState([]);
+  const [isIOS, setIsIOS] = useState(false);
+  const [canInstall, setCanInstall] = useState(false);
 
-  // Simulación de alertas
+  // Detectar si es iOS
+  useEffect(() => {
+    const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    setIsIOS(iOS);
+  }, []);
+
+  // Sistema alternativo de alertas para móviles
   useEffect(() => {
     const interval = setInterval(() => {
       const now = new Date();
@@ -33,26 +41,29 @@ const TaskAlertApp = () => {
           };
           setNotifications(prev => [notification, ...prev.slice(0, 4)]);
           
-          // Simular notificación del navegador
-          if (Notification.permission === 'granted') {
-            new Notification('Recordatorio de Tareas', {
-              body: notification.message,
-              icon: '🔔'
-            });
+          // Para iOS: mostrar alerta visual en lugar de notificación
+          if (isIOS) {
+            showIOSAlert(notification.message, todayTasks);
+          } else {
+            // Intentar notificación del navegador en otros dispositivos
+            if (Notification.permission === 'granted') {
+              new Notification('Recordatorio de Tareas', {
+                body: notification.message,
+                icon: '🔔'
+              });
+            }
           }
         }
       }
-    }, 60000); // Revisar cada minuto
+    }, 60000);
 
     return () => clearInterval(interval);
-  }, [alertTimes, tasks]);
+  }, [alertTimes, tasks, isIOS]);
 
-  // Solicitar permisos de notificación
-  useEffect(() => {
-    if ('Notification' in window && Notification.permission === 'default') {
-      Notification.requestPermission();
-    }
-  }, []);
+  const showIOSAlert = (message, tasksForAlert) => {
+    const taskList = tasksForAlert.map(task => `• ${task.text}`).join('\n');
+    alert(`🔔 ${message}\n\nTareas:\n${taskList}`);
+  };
 
   const getDaysInMonth = (date) => {
     const year = date.getFullYear();
@@ -64,12 +75,10 @@ const TaskAlertApp = () => {
 
     const days = [];
     
-    // Días vacíos al inicio
     for (let i = 0; i < startingDayOfWeek; i++) {
       days.push(null);
     }
     
-    // Días del mes
     for (let day = 1; day <= daysInMonth; day++) {
       days.push(new Date(year, month, day));
     }
@@ -135,41 +144,90 @@ const TaskAlertApp = () => {
     });
   };
 
+  const exportToCalendar = () => {
+    const incompleteTasks = tasks.filter(task => !task.completed);
+    let calendarData = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//TaskApp//TaskApp//EN\n";
+    
+    incompleteTasks.forEach(task => {
+      const date = new Date(task.date);
+      const dateString = date.toISOString().slice(0, 10).replace(/-/g, '');
+      
+      calendarData += `BEGIN:VEVENT\n`;
+      calendarData += `DTSTART:${dateString}T090000\n`;
+      calendarData += `DTEND:${dateString}T093000\n`;
+      calendarData += `SUMMARY:${task.text}\n`;
+      calendarData += `DESCRIPTION:Tarea pendiente\n`;
+      calendarData += `UID:task-${task.id}@taskapp.com\n`;
+      calendarData += `END:VEVENT\n`;
+    });
+    
+    calendarData += "END:VCALENDAR";
+    
+    const blob = new Blob([calendarData], { type: 'text/calendar' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'mis-tareas.ics';
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
+  const renderIOSInstructions = () => (
+    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+      <h4 className="font-bold text-blue-800 mb-2">📱 Para iPhone/iPad:</h4>
+      <div className="text-blue-700 text-sm space-y-2">
+        <p><strong>1.</strong> Abre esta página en Safari</p>
+        <p><strong>2.</strong> Toca el botón "Compartir" (📤)</p>
+        <p><strong>3.</strong> Selecciona "Añadir a pantalla de inicio"</p>
+        <p><strong>4.</strong> La app se instalará como una aplicación nativa</p>
+        <p><strong>5.</strong> Las alertas aparecerán como pop-ups cuando la app esté abierta</p>
+      </div>
+      
+      <button
+        onClick={exportToCalendar}
+        className="mt-3 w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 flex items-center justify-center gap-2"
+      >
+        <Download size={16} />
+        Exportar a Calendario del iPhone
+      </button>
+    </div>
+  );
+
   const renderCalendar = () => {
     const days = getDaysInMonth(currentDate);
     const today = new Date().toDateString();
     
     return (
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">
+      <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
+        <div className="flex items-center justify-between mb-4 md:mb-6">
+          <h2 className="text-xl md:text-2xl font-bold text-gray-800">
             {currentDate.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}
           </h2>
-          <div className="flex gap-2">
+          <div className="flex gap-1 md:gap-2">
             <button
               onClick={() => setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() - 1)))}
-              className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+              className="px-2 md:px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
             >
               ‹
             </button>
             <button
               onClick={() => setCurrentDate(new Date())}
-              className="px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600"
+              className="px-2 md:px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 text-sm"
             >
               Hoy
             </button>
             <button
               onClick={() => setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() + 1)))}
-              className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+              className="px-2 md:px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
             >
               ›
             </button>
           </div>
         </div>
 
-        <div className="grid grid-cols-7 gap-1 mb-4">
-          {['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'].map(day => (
-            <div key={day} className="p-2 text-center font-semibold text-gray-600">
+        <div className="grid grid-cols-7 gap-1 mb-2 md:mb-4">
+          {['D', 'L', 'M', 'X', 'J', 'V', 'S'].map(day => (
+            <div key={day} className="p-1 md:p-2 text-center font-semibold text-gray-600 text-sm">
               {day}
             </div>
           ))}
@@ -177,7 +235,7 @@ const TaskAlertApp = () => {
 
         <div className="grid grid-cols-7 gap-1">
           {days.map((day, index) => {
-            if (!day) return <div key={index} className="p-2"></div>;
+            if (!day) return <div key={index} className="p-1 md:p-2"></div>;
             
             const dayTasks = getTasksForDate(day);
             const isToday = day.toDateString() === today;
@@ -187,16 +245,16 @@ const TaskAlertApp = () => {
               <div
                 key={day.getTime()}
                 onClick={() => setSelectedDate(day)}
-                className={`p-2 h-20 border rounded cursor-pointer transition-colors ${
+                className={`p-1 md:p-2 h-12 md:h-20 border rounded cursor-pointer transition-colors ${
                   isSelected ? 'bg-blue-500 text-white' :
                   isToday ? 'bg-blue-100 border-blue-300' :
                   'bg-gray-50 hover:bg-gray-100'
                 }`}
               >
-                <div className="font-medium">{day.getDate()}</div>
+                <div className="font-medium text-sm">{day.getDate()}</div>
                 {dayTasks.length > 0 && (
                   <div className={`text-xs mt-1 ${isSelected ? 'text-blue-100' : 'text-blue-600'}`}>
-                    {dayTasks.length} tarea{dayTasks.length !== 1 ? 's' : ''}
+                    {dayTasks.length}
                   </div>
                 )}
               </div>
@@ -211,9 +269,9 @@ const TaskAlertApp = () => {
     const selectedDateTasks = getTasksForDate(selectedDate);
     
     return (
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h3 className="text-xl font-bold mb-4">
-          Tareas para {formatDate(selectedDate)}
+      <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
+        <h3 className="text-lg md:text-xl font-bold mb-4">
+          Tareas para {selectedDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
         </h3>
         
         <div className="flex gap-2 mb-4">
@@ -223,14 +281,14 @@ const TaskAlertApp = () => {
             onChange={(e) => setNewTask(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && addTask()}
             placeholder="Nueva tarea..."
-            className="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-base"
           />
           <button
             onClick={addTask}
-            className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 flex items-center gap-2"
+            className="px-3 md:px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 flex items-center gap-2"
           >
             <Plus size={16} />
-            Agregar
+            <span className="hidden md:inline">Agregar</span>
           </button>
         </div>
 
@@ -244,7 +302,7 @@ const TaskAlertApp = () => {
             >
               <button
                 onClick={() => toggleTask(task.id)}
-                className={`text-2xl ${task.completed ? 'text-green-500' : 'text-gray-400'}`}
+                className={`text-xl md:text-2xl ${task.completed ? 'text-green-500' : 'text-gray-400'}`}
               >
                 <CheckCircle2 size={20} />
               </button>
@@ -260,7 +318,7 @@ const TaskAlertApp = () => {
                 />
               ) : (
                 <span
-                  className={`flex-1 ${task.completed ? 'line-through text-gray-500' : 'text-gray-800'}`}
+                  className={`flex-1 ${task.completed ? 'line-through text-gray-500' : 'text-gray-800'} text-sm md:text-base`}
                   onClick={() => setEditingTask(task.id)}
                 >
                   {task.text}
@@ -269,14 +327,14 @@ const TaskAlertApp = () => {
               
               <button
                 onClick={() => setEditingTask(task.id)}
-                className="text-blue-500 hover:text-blue-700"
+                className="text-blue-500 hover:text-blue-700 p-1"
               >
                 <Edit3 size={16} />
               </button>
               
               <button
                 onClick={() => deleteTask(task.id)}
-                className="text-red-500 hover:text-red-700"
+                className="text-red-500 hover:text-red-700 p-1"
               >
                 <Trash2 size={16} />
               </button>
@@ -284,7 +342,7 @@ const TaskAlertApp = () => {
           ))}
           
           {selectedDateTasks.length === 0 && (
-            <div className="text-center text-gray-500 py-8">
+            <div className="text-center text-gray-500 py-8 text-sm">
               No hay tareas para este día
             </div>
           )}
@@ -294,8 +352,10 @@ const TaskAlertApp = () => {
   };
 
   const renderSettings = () => (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <h3 className="text-xl font-bold mb-4">Configuración de Alertas</h3>
+    <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
+      <h3 className="text-lg md:text-xl font-bold mb-4">Configuración de Alertas</h3>
+      
+      {isIOS && renderIOSInstructions()}
       
       <div className="mb-6">
         <h4 className="font-semibold mb-3">Horarios de Notificación</h4>
@@ -304,23 +364,23 @@ const TaskAlertApp = () => {
             type="time"
             value={newAlertTime}
             onChange={(e) => setNewAlertTime(e.target.value)}
-            className="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 flex-1"
           />
           <button
             onClick={addAlertTime}
             className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
           >
-            Agregar
+            +
           </button>
         </div>
         
         <div className="space-y-2">
           {alertTimes.map(time => (
-            <div key={time} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+            <div key={time} className="flex items-center justify-between p-3 bg-gray-50 rounded">
               <span className="font-medium">{time}</span>
               <button
                 onClick={() => removeAlertTime(time)}
-                className="text-red-500 hover:text-red-700"
+                className="text-red-500 hover:text-red-700 p-1"
               >
                 <Trash2 size={16} />
               </button>
@@ -336,54 +396,66 @@ const TaskAlertApp = () => {
             {notifications.map(notification => (
               <div key={notification.id} className="p-3 bg-yellow-50 border border-yellow-200 rounded">
                 <div className="font-medium text-yellow-800">{notification.time}</div>
-                <div className="text-yellow-700">{notification.message}</div>
+                <div className="text-yellow-700 text-sm">{notification.message}</div>
               </div>
             ))}
           </div>
         </div>
       )}
+
+      <div className="bg-gray-50 rounded-lg p-4">
+        <h4 className="font-semibold mb-2">💡 Consejos para iPhone:</h4>
+        <ul className="text-sm text-gray-600 space-y-1">
+          <li>• Mantén la app abierta para recibir alertas</li>
+          <li>• Usa el botón "Exportar" para añadir tareas al Calendario</li>
+          <li>• Configura recordatorios en la app nativa "Recordatorios"</li>
+          <li>• Añade la app a tu pantalla de inicio desde Safari</li>
+        </ul>
+      </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-2 md:p-4">
       <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">
-            Gestor de Tareas
+        <div className="text-center mb-6 md:mb-8">
+          <h1 className="text-2xl md:text-4xl font-bold text-gray-800 mb-2">
+            📱 Gestor de Tareas
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 text-sm md:text-base">
             Organiza tus tareas y recibe alertas personalizadas
           </p>
         </div>
 
         {/* Navegación por pestañas */}
-        <div className="flex justify-center mb-6">
-          <div className="bg-white rounded-lg p-1 shadow-md">
-            <button
-              onClick={() => setActiveTab('calendar')}
-              className={`px-4 py-2 rounded-md flex items-center gap-2 ${
-                activeTab === 'calendar' ? 'bg-blue-500 text-white' : 'text-gray-600 hover:bg-gray-100'
-              }`}
-            >
-              <Calendar size={16} />
-              Calendario
-            </button>
-            <button
-              onClick={() => setActiveTab('settings')}
-              className={`px-4 py-2 rounded-md flex items-center gap-2 ${
-                activeTab === 'settings' ? 'bg-blue-500 text-white' : 'text-gray-600 hover:bg-gray-100'
-              }`}
-            >
-              <Settings size={16} />
-              Alertas
-            </button>
+        <div className="flex justify-center mb-4 md:mb-6">
+          <div className="bg-white rounded-lg p-1 shadow-md w-full max-w-md">
+            <div className="grid grid-cols-2 gap-1">
+              <button
+                onClick={() => setActiveTab('calendar')}
+                className={`px-3 py-2 rounded-md flex items-center justify-center gap-2 text-sm ${
+                  activeTab === 'calendar' ? 'bg-blue-500 text-white' : 'text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                <Calendar size={16} />
+                Calendario
+              </button>
+              <button
+                onClick={() => setActiveTab('settings')}
+                className={`px-3 py-2 rounded-md flex items-center justify-center gap-2 text-sm ${
+                  activeTab === 'settings' ? 'bg-blue-500 text-white' : 'text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                <Settings size={16} />
+                Alertas
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Contenido principal */}
         {activeTab === 'calendar' ? (
-          <div className="grid lg:grid-cols-2 gap-6">
+          <div className="grid lg:grid-cols-2 gap-4 md:gap-6">
             {renderCalendar()}
             {renderTaskList()}
           </div>
@@ -394,24 +466,24 @@ const TaskAlertApp = () => {
         )}
 
         {/* Resumen de estadísticas */}
-        <div className="mt-8 grid md:grid-cols-3 gap-4">
-          <div className="bg-white rounded-lg shadow-md p-4 text-center">
-            <div className="text-3xl font-bold text-blue-500">
+        <div className="mt-6 md:mt-8 grid grid-cols-3 gap-2 md:gap-4">
+          <div className="bg-white rounded-lg shadow-md p-3 md:p-4 text-center">
+            <div className="text-2xl md:text-3xl font-bold text-blue-500">
               {tasks.filter(t => !t.completed).length}
             </div>
-            <div className="text-gray-600">Tareas Pendientes</div>
+            <div className="text-gray-600 text-xs md:text-sm">Pendientes</div>
           </div>
-          <div className="bg-white rounded-lg shadow-md p-4 text-center">
-            <div className="text-3xl font-bold text-green-500">
+          <div className="bg-white rounded-lg shadow-md p-3 md:p-4 text-center">
+            <div className="text-2xl md:text-3xl font-bold text-green-500">
               {tasks.filter(t => t.completed).length}
             </div>
-            <div className="text-gray-600">Tareas Completadas</div>
+            <div className="text-gray-600 text-xs md:text-sm">Completadas</div>
           </div>
-          <div className="bg-white rounded-lg shadow-md p-4 text-center">
-            <div className="text-3xl font-bold text-purple-500">
+          <div className="bg-white rounded-lg shadow-md p-3 md:p-4 text-center">
+            <div className="text-2xl md:text-3xl font-bold text-purple-500">
               {alertTimes.length}
             </div>
-            <div className="text-gray-600">Alertas Configuradas</div>
+            <div className="text-gray-600 text-xs md:text-sm">Alertas</div>
           </div>
         </div>
       </div>
