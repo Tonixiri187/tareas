@@ -572,7 +572,13 @@
     <div class="container">
         <div class="header">
             <h1>📱 Gestor de Tareas</h1>
-            <p>Organiza tus tareas y recibe alertas persistentes</p>
+            <p>Organiza tus tareas y configura alertas REALES con sonido</p>
+            <div style="background: #dcfce7; border: 1px solid #bbf7d0; border-radius: 12px; padding: 12px; margin-top: 12px; text-align: left;">
+                <p style="color: #166534; font-size: 13px; margin: 0;">
+                    <strong>✨ NUEVO:</strong> Ahora puedes asignar hora específica a cada tarea. 
+                    Al exportar al calendario, aparecerá exactamente a esa hora con alerta de sonido y vibración.
+                </p>
+            </div>
         </div>
 
         <div class="tabs">
@@ -607,7 +613,14 @@
                     
                     <div class="task-input-container">
                         <input type="text" class="task-input" id="new-task" placeholder="Nueva tarea..." onkeypress="handleTaskEnter(event)">
+                        <input type="time" class="time-input" id="new-task-time" placeholder="Hora alerta" style="width: 100px; margin-left: 8px;">
                         <button class="add-button" onclick="addTask()">+ Agregar</button>
+                    </div>
+
+                    <div style="background: #f0f9ff; border: 1px solid #0ea5e9; border-radius: 8px; padding: 10px; margin-bottom: 16px;">
+                        <p style="color: #0c4a6e; font-size: 12px; margin: 0;">
+                            💡 <strong>Opcional:</strong> Añade una hora específica para esta tarea. Si no pones hora, usará los horarios generales de alertas.
+                        </p>
                     </div>
 
                     <div class="task-list" id="task-list">
@@ -622,18 +635,37 @@
                 <h3>⚙️ Configuración de Alertas</h3>
                 
                 <div id="ios-notice" class="ios-notice hidden">
-                    <h4>📱 Sistema de Alertas para iPhone:</h4>
-                    <p><strong>1.</strong> Instala la app: Safari → Compartir → "Añadir a pantalla de inicio"</p>
-                    <p><strong>2.</strong> Las alertas aparecerán como pantallas completas persistentes</p>
-                    <p><strong>3.</strong> Se repetirán cada minuto hasta que las canceles</p>
-                    <p><strong>4.</strong> Incluyen vibración cuando es posible</p>
+                    <h4>📱 Alertas REALES para iPhone:</h4>
+                    <p><strong>⚠️ IMPORTANTE:</strong> Las apps web no pueden enviar alertas en segundo plano.</p>
+                    <p><strong>✅ SOLUCIÓN:</strong> Usa las funciones nativas del iPhone:</p>
+                    
                     <button class="export-button" onclick="exportToCalendar()">
-                        📥 Exportar Tareas al Calendario
+                        📅 1. Exportar a Calendario (Con Alarmas)
                     </button>
+                    
+                    <button class="export-button" onclick="createReminders()" style="background: #8b5cf6; margin-top: 10px;">
+                        📋 2. Crear en App "Recordatorios"
+                    </button>
+                    
+                    <button class="export-button" onclick="setupAlarms()" style="background: #f59e0b; margin-top: 10px;">
+                        ⏰ 3. Configurar Alarmas Nativas
+                    </button>
+                    
+                    <div style="background: #fff3cd; padding: 15px; margin-top: 15px; border-radius: 10px; border: 1px solid #ffeaa7;">
+                        <p style="color: #856404; font-size: 14px; margin: 0;">
+                            <strong>💡 Recomendación:</strong> Usa la opción 1 para tener alertas automáticas con sonido y vibración que funcionen aunque el móvil esté en reposo.
+                        </p>
+                    </div>
                 </div>
 
                 <div class="alert-section">
                     <h4>⏰ Horarios de Notificación</h4>
+                    <p style="background: #fef3c7; padding: 10px; border-radius: 8px; font-size: 14px; color: #92400e; margin-bottom: 15px;">
+                        <strong>📱 Limitación iOS:</strong> Estos horarios solo generan alertas cuando la app está abierta. 
+                        Para alertas reales que funcionen en segundo plano, usa los botones de arriba.
+                        <br><br>
+                        <strong>💡 Nuevo:</strong> También puedes asignar horas específicas a cada tarea individual.
+                    </p>
                     <div class="alert-input-container">
                         <input type="time" class="time-input" id="new-alert-time">
                         <button class="add-button" onclick="addAlertTime()">Agregar</button>
@@ -641,8 +673,40 @@
                     <div id="alert-times"></div>
                     
                     <button class="export-button test-button" onclick="testAlert()">
-                        🔔 Probar Alerta Ahora
+                        🔔 Probar Alerta (Solo con app abierta)
                     </button>
+                </div>
+
+                <div style="background: #f0f9ff; border: 2px solid #0ea5e9; border-radius: 16px; padding: 20px; margin-top: 20px;">
+                    <h4 style="color: #0c4a6e; margin-bottom: 15px;">📱 ¿Qué opción elegir?</h4>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <strong style="color: #065f46;">🏆 MEJOR OPCIÓN - Calendario:</strong>
+                        <p style="color: #064e3b; font-size: 14px; margin: 5px 0;">
+                            ✅ Alertas con sonido y vibración<br>
+                            ✅ Funciona con móvil en reposo<br>
+                            ✅ Se importa automáticamente<br>
+                            ✅ Usar horarios que configuraste arriba
+                        </p>
+                    </div>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <strong style="color: #7c2d12;">🥈 SEGUNDA OPCIÓN - Recordatorios:</strong>
+                        <p style="color: #7c2d12; font-size: 14px; margin: 5px 0;">
+                            ✅ Muy flexible y personalizable<br>
+                            ⚠️ Requiere configuración manual<br>
+                            ✅ Perfecto para tareas específicas
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <strong style="color: #b45309;">🥉 TERCERA OPCIÓN - Alarmas:</strong>
+                        <p style="color: #b45309; font-size: 14px; margin: 5px 0;">
+                            ✅ Imposible de ignorar<br>
+                            ⚠️ Solo para recordar revisar tareas<br>
+                            ✅ Muy fácil de configurar
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -826,7 +890,9 @@
 
         function addTask() {
             var input = document.getElementById('new-task');
+            var timeInput = document.getElementById('new-task-time');
             var taskText = input.value.trim();
+            var taskTime = timeInput.value;
             
             if (!taskText) return;
 
@@ -834,11 +900,13 @@
                 id: Date.now(),
                 text: taskText,
                 date: selectedDate.toISOString().split('T')[0],
-                completed: false
+                completed: false,
+                alertTime: taskTime || null // Hora específica de la tarea (opcional)
             };
 
             tasks.push(task);
             input.value = '';
+            timeInput.value = '';
             saveData();
             updateTaskList();
             updateCalendar();
@@ -892,6 +960,17 @@
             var newText = prompt('Editar tarea:', task.text);
             if (newText && newText.trim()) {
                 task.text = newText.trim();
+                
+                var newTime = prompt('Hora de alerta (formato HH:MM, o deja vacío para usar horarios generales):', task.alertTime || '');
+                if (newTime === '') {
+                    task.alertTime = null;
+                } else if (newTime !== null) {
+                    // Validar formato de hora básico
+                    if (newTime.match(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/)) {
+                        task.alertTime = newTime;
+                    }
+                }
+                
                 saveData();
                 updateTaskList();
             }
@@ -913,6 +992,19 @@
                 return;
             }
 
+            // Ordenar tareas por hora (las que tienen hora específica primero, ordenadas por hora)
+            dayTasks.sort(function(a, b) {
+                if (a.alertTime && b.alertTime) {
+                    return a.alertTime.localeCompare(b.alertTime);
+                } else if (a.alertTime && !b.alertTime) {
+                    return -1;
+                } else if (!a.alertTime && b.alertTime) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            });
+
             var html = '';
             for (var i = 0; i < dayTasks.length; i++) {
                 var task = dayTasks[i];
@@ -920,7 +1012,15 @@
                 html += '<div class="task-checkbox ' + (task.completed ? 'checked' : '') + '" onclick="toggleTask(' + task.id + ')">';
                 html += task.completed ? '✓' : '';
                 html += '</div>';
-                html += '<div class="task-text ' + (task.completed ? 'completed' : '') + '">' + task.text + '</div>';
+                html += '<div class="task-text ' + (task.completed ? 'completed' : '') + '">';
+                
+                // Mostrar la hora si la tarea la tiene
+                if (task.alertTime) {
+                    html += '<div style="color: #059669; font-size: 12px; font-weight: 600; margin-bottom: 4px;">🕐 ' + task.alertTime + '</div>';
+                }
+                
+                html += task.text;
+                html += '</div>';
                 html += '<div class="task-actions">';
                 html += '<button class="action-button edit-button" onclick="editTask(' + task.id + ')">✏️</button>';
                 html += '<button class="action-button delete-button" onclick="deleteTask(' + task.id + ')">🗑️</button>';
@@ -978,7 +1078,7 @@
                 var now = new Date();
                 var currentTime = now.toTimeString().slice(0, 5);
                 
-                if (alertTimes.indexOf(currentTime) !== -1 && !activeAlert) {
+                if (!activeAlert) {
                     var today = new Date();
                     var todayTasks = [];
                     
@@ -986,7 +1086,24 @@
                         var task = tasks[i];
                         var taskDate = new Date(task.date);
                         if (taskDate.toDateString() === today.toDateString() && !task.completed) {
-                            todayTasks.push(task);
+                            // Verificar si es hora de alertar esta tarea específica
+                            var shouldAlert = false;
+                            
+                            if (task.alertTime) {
+                                // La tarea tiene hora específica
+                                if (task.alertTime === currentTime) {
+                                    shouldAlert = true;
+                                }
+                            } else {
+                                // La tarea usa horarios generales
+                                if (alertTimes.indexOf(currentTime) !== -1) {
+                                    shouldAlert = true;
+                                }
+                            }
+                            
+                            if (shouldAlert) {
+                                todayTasks.push(task);
+                            }
                         }
                     }
 
@@ -1144,12 +1261,91 @@
 
             if (todayTasks.length === 0) {
                 todayTasks = [
-                    { text: 'Tarea de prueba 1 - Revisar emails' },
-                    { text: 'Tarea de prueba 2 - Llamar al médico' }
+                    { text: 'Tarea de prueba 1 - Revisar emails', alertTime: '09:30' },
+                    { text: 'Tarea de prueba 2 - Llamar al médico', alertTime: null }
                 ];
             }
 
             showPersistentAlert(todayTasks);
+        }
+
+        function createReminders() {
+            var today = new Date();
+            var todayTasks = [];
+            
+            for (var i = 0; i < tasks.length; i++) {
+                var task = tasks[i];
+                var taskDate = new Date(task.date);
+                if (taskDate >= today && !task.completed) {
+                    todayTasks.push(task);
+                }
+            }
+
+            if (todayTasks.length === 0) {
+                alert('No tienes tareas pendientes para crear recordatorios.');
+                return;
+            }
+
+            var reminderText = "Para crear recordatorios con SONIDO y VIBRACIÓN:\n\n";
+            reminderText += "1. Abre la app 'Recordatorios' en tu iPhone\n";
+            reminderText += "2. Toca '+' para crear nuevo recordatorio\n";
+            reminderText += "3. Copia y pega cada tarea:\n\n";
+            
+            for (var i = 0; i < Math.min(todayTasks.length, 5); i++) {
+                var task = todayTasks[i];
+                var taskDate = new Date(task.date);
+                reminderText += "📝 " + task.text + " (" + taskDate.toLocaleDateString('es-ES') + ")\n";
+            }
+            
+            reminderText += "\n4. Para cada recordatorio:\n";
+            reminderText += "   • Toca el 'i' → Establecer fecha y hora\n";
+            reminderText += "   • Activa las notificaciones\n";
+            reminderText += "   • ¡Tendrás alertas con sonido y vibración!\n\n";
+            reminderText += "🔥 ESTO SÍ FUNCIONA en segundo plano!";
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Mis Tareas para Recordatorios',
+                    text: reminderText
+                });
+            } else {
+                // Copiar al portapapeles
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(reminderText).then(function() {
+                        alert('📋 Texto copiado al portapapeles!\n\nPégalo en la app Recordatorios de tu iPhone.');
+                    });
+                } else {
+                    alert(reminderText);
+                }
+            }
+        }
+
+        function setupAlarms() {
+            var instructions = "⏰ CONFIGURAR ALARMAS NATIVAS del iPhone:\n\n";
+            instructions += "Para tener alertas que SÍ funcionen en segundo plano:\n\n";
+            instructions += "1. Abre la app 'Reloj' → 'Alarma'\n\n";
+            instructions += "2. Crea alarmas para estos horarios:\n";
+            
+            for (var i = 0; i < alertTimes.length; i++) {
+                instructions += "   • " + alertTimes[i] + " - Revisar tareas\n";
+            }
+            
+            instructions += "\n3. Para cada alarma:\n";
+            instructions += "   • Ponle nombre: 'Revisar Tareas'\n";
+            instructions += "   • Configura el sonido que prefieras\n";
+            instructions += "   • Activa 'Repetir' para los días que quieras\n\n";
+            instructions += "4. Cuando suene la alarma:\n";
+            instructions += "   • Abre esta app para ver tus tareas\n\n";
+            instructions += "🔥 Las alarmas nativas SIEMPRE funcionan!";
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Configuración de Alarmas',
+                    text: instructions
+                });
+            } else {
+                alert(instructions);
+            }
         }
 
         function exportToCalendar() {
@@ -1160,35 +1356,149 @@
                 }
             }
             
+            if (incompleteTasks.length === 0) {
+                alert('No tienes tareas pendientes para exportar.');
+                return;
+            }
+
             var calendarData = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//TaskApp//TaskApp//EN\n";
+            var eventCount = 0;
             
             for (var i = 0; i < incompleteTasks.length; i++) {
                 var task = incompleteTasks[i];
                 var date = new Date(task.date);
                 var dateString = date.toISOString().slice(0, 10).replace(/-/g, '');
                 
-                calendarData += "BEGIN:VEVENT\n";
-                calendarData += "DTSTART:" + dateString + "T090000\n";
-                calendarData += "DTEND:" + dateString + "T093000\n";
-                calendarData += "SUMMARY:📝 " + task.text + "\n";
-                calendarData += "DESCRIPTION:Tarea pendiente del Gestor de Tareas\n";
-                calendarData += "UID:task-" + task.id + "@taskapp.com\n";
-                calendarData += "END:VEVENT\n";
+                // Si la tarea tiene hora específica, usar esa hora
+                if (task.alertTime) {
+                    var timeParts = task.alertTime.split(':');
+                    var hour = parseInt(timeParts[0]);
+                    var minute = parseInt(timeParts[1]);
+                    
+                    calendarData += "BEGIN:VEVENT\n";
+                    calendarData += "DTSTART:" + dateString + "T" + 
+                                   (hour < 10 ? "0" : "") + hour + 
+                                   (minute < 10 ? "0" : "") + minute + "00\n";
+                    calendarData += "DTEND:" + dateString + "T" + 
+                                   (hour < 10 ? "0" : "") + hour + 
+                                   (minute < 10 ? "0" : "") + minute + "30\n";
+                    calendarData += "SUMMARY:🔔 " + task.text + "\n";
+                    calendarData += "DESCRIPTION:⏰ Alerta específica a las " + task.alertTime + "\\n\\n";
+                    calendarData += "Tarea: " + task.text + "\\n";
+                    calendarData += "Fecha: " + date.toLocaleDateString('es-ES') + "\\n";
+                    calendarData += "Hora configurada: " + task.alertTime + "\\n\\n";
+                    calendarData += "📱 Abre la app Gestor de Tareas para marcar como completada.\n";
+                    calendarData += "LOCATION:Gestor de Tareas\n";
+                    calendarData += "UID:task-specific-" + task.id + "@taskapp.com\n";
+                    calendarData += "DTSTAMP:" + new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + "Z\n";
+                    
+                    // Agregar múltiples alarmas para la hora específica
+                    calendarData += "BEGIN:VALARM\n";
+                    calendarData += "TRIGGER:PT0M\n";
+                    calendarData += "ACTION:DISPLAY\n";
+                    calendarData += "DESCRIPTION:🔔 " + task.text + " (Hora específica: " + task.alertTime + ")\n";
+                    calendarData += "END:VALARM\n";
+                    
+                    calendarData += "BEGIN:VALARM\n";
+                    calendarData += "TRIGGER:PT0M\n";
+                    calendarData += "ACTION:AUDIO\n";
+                    calendarData += "END:VALARM\n";
+                    
+                    // Alerta adicional 5 minutos antes
+                    calendarData += "BEGIN:VALARM\n";
+                    calendarData += "TRIGGER:-PT5M\n";
+                    calendarData += "ACTION:DISPLAY\n";
+                    calendarData += "DESCRIPTION:⚠️ " + task.text + " en 5 minutos\n";
+                    calendarData += "END:VALARM\n";
+                    
+                    calendarData += "END:VEVENT\n";
+                    eventCount++;
+                } else {
+                    // Si la tarea NO tiene hora específica, usar los horarios generales
+                    for (var j = 0; j < alertTimes.length; j++) {
+                        var alertTime = alertTimes[j];
+                        var timeParts = alertTime.split(':');
+                        var hour = parseInt(timeParts[0]);
+                        var minute = parseInt(timeParts[1]);
+                        
+                        calendarData += "BEGIN:VEVENT\n";
+                        calendarData += "DTSTART:" + dateString + "T" + 
+                                       (hour < 10 ? "0" : "") + hour + 
+                                       (minute < 10 ? "0" : "") + minute + "00\n";
+                        calendarData += "DTEND:" + dateString + "T" + 
+                                       (hour < 10 ? "0" : "") + hour + 
+                                       (minute < 10 ? "0" : "") + minute + "30\n";
+                        calendarData += "SUMMARY:🔔 " + task.text + "\n";
+                        calendarData += "DESCRIPTION:📅 Recordatorio general a las " + alertTime + "\\n\\n";
+                        calendarData += "Tarea: " + task.text + "\\n";
+                        calendarData += "Fecha: " + date.toLocaleDateString('es-ES') + "\\n";
+                        calendarData += "Horario general: " + alertTime + "\\n\\n";
+                        calendarData += "📱 Abre la app Gestor de Tareas para marcar como completada.\n";
+                        calendarData += "LOCATION:Gestor de Tareas\n";
+                        calendarData += "UID:task-general-" + task.id + "-" + j + "@taskapp.com\n";
+                        calendarData += "DTSTAMP:" + new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + "Z\n";
+                        
+                        // Agregar alarmas
+                        calendarData += "BEGIN:VALARM\n";
+                        calendarData += "TRIGGER:PT0M\n";
+                        calendarData += "ACTION:DISPLAY\n";
+                        calendarData += "DESCRIPTION:🔔 " + task.text + " (Horario general: " + alertTime + ")\n";
+                        calendarData += "END:VALARM\n";
+                        
+                        calendarData += "BEGIN:VALARM\n";
+                        calendarData += "TRIGGER:PT0M\n";
+                        calendarData += "ACTION:AUDIO\n";
+                        calendarData += "END:VALARM\n";
+                        
+                        calendarData += "END:VEVENT\n";
+                        eventCount++;
+                    }
+                }
             }
             
             calendarData += "END:VCALENDAR";
             
-            var blob = new Blob([calendarData], { type: 'text/calendar' });
+            var blob = new Blob([calendarData], { type: 'text/calendar;charset=utf-8' });
             var url = window.URL.createObjectURL(blob);
             var a = document.createElement('a');
             a.href = url;
-            a.download = 'mis-tareas.ics';
+            a.download = 'alertas-tareas-personalizadas.ics';
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             window.URL.revokeObjectURL(url);
             
-            alert('📅 Archivo exportado! Ábrelo en la app Calendario de tu iPhone');
+            var successMessage = "📅 ¡Archivo exportado!\n\n";
+            successMessage += "INSTRUCCIONES:\n";
+            successMessage += "1. Busca el archivo 'alertas-tareas-personalizadas.ics'\n";
+            successMessage += "2. Tócalo para abrirlo\n";
+            successMessage += "3. Selecciona 'Calendario'\n";
+            successMessage += "4. Confirma la importación\n\n";
+            successMessage += "📋 RESUMEN DE ALERTAS CREADAS:\n";
+            
+            var tasksWithSpecificTime = 0;
+            var tasksWithGeneralTime = 0;
+            
+            for (var i = 0; i < incompleteTasks.length; i++) {
+                if (incompleteTasks[i].alertTime) {
+                    tasksWithSpecificTime++;
+                } else {
+                    tasksWithGeneralTime++;
+                }
+            }
+            
+            if (tasksWithSpecificTime > 0) {
+                successMessage += "• " + tasksWithSpecificTime + " tarea(s) con hora específica\n";
+            }
+            if (tasksWithGeneralTime > 0) {
+                successMessage += "• " + tasksWithGeneralTime + " tarea(s) con horarios generales (" + alertTimes.length + " alertas cada una)\n";
+            }
+            
+            successMessage += "\n🔔 Total: " + eventCount + " alertas con SONIDO y VIBRACIÓN\n";
+            successMessage += "📱 Funcionan aunque el móvil esté en reposo\n";
+            successMessage += "⚠️ Las alertas específicas incluyen aviso 5 min antes";
+            
+            alert(successMessage);
         }
 
         function updateStats() {
