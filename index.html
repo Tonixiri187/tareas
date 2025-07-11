@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>📱 Gestor de Tareas</title>
-    <meta name="description" content="Gestor de tareas con alertas personalizadas">
+    <meta name="description" content="Gestor de tareas con alertas persistentes">
     <meta name="theme-color" content="#3b82f6">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -458,13 +458,121 @@
         .hidden {
             display: none;
         }
+
+        .alert-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .alert-modal {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .alert-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .alert-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #dc2626;
+            margin-bottom: 15px;
+        }
+
+        .alert-message {
+            font-size: 1.1rem;
+            color: #374151;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .alert-tasks {
+            background: #fef2f2;
+            border: 2px solid #fecaca;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .alert-task-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #fecaca;
+            color: #991b1b;
+            font-weight: 500;
+        }
+
+        .alert-task-item:last-child {
+            border-bottom: none;
+        }
+
+        .alert-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .alert-button {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        .alert-button.dismiss {
+            background: #10b981;
+            color: white;
+        }
+
+        .alert-button.snooze {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .alert-button.cancel {
+            background: #ef4444;
+            color: white;
+        }
+
+        .alert-timer {
+            font-size: 14px;
+            color: #6b7280;
+            margin-top: 15px;
+            font-weight: 500;
+        }
+
+        .test-button {
+            background: #f59e0b;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1>📱 Gestor de Tareas</h1>
-            <p>Organiza tus tareas y recibe alertas personalizadas</p>
+            <p>Organiza tus tareas y recibe alertas persistentes</p>
         </div>
 
         <div class="tabs">
@@ -490,7 +598,6 @@
                 </div>
 
                 <div class="calendar-grid" id="calendar-grid">
-                    <!-- Los headers y días se generarán aquí por JavaScript -->
                 </div>
             </div>
 
@@ -515,11 +622,11 @@
                 <h3>⚙️ Configuración de Alertas</h3>
                 
                 <div id="ios-notice" class="ios-notice hidden">
-                    <h4>📱 Para iPhone/iPad:</h4>
-                    <p><strong>1.</strong> Abre Safari → Toca "Compartir" (📤)</p>
-                    <p><strong>2.</strong> Selecciona "Añadir a pantalla de inicio"</p>
-                    <p><strong>3.</strong> La app se instalará como aplicación nativa</p>
-                    <p><strong>4.</strong> Las alertas aparecerán cuando tengas la app abierta</p>
+                    <h4>📱 Sistema de Alertas para iPhone:</h4>
+                    <p><strong>1.</strong> Instala la app: Safari → Compartir → "Añadir a pantalla de inicio"</p>
+                    <p><strong>2.</strong> Las alertas aparecerán como pantallas completas persistentes</p>
+                    <p><strong>3.</strong> Se repetirán cada minuto hasta que las canceles</p>
+                    <p><strong>4.</strong> Incluyen vibración cuando es posible</p>
                     <button class="export-button" onclick="exportToCalendar()">
                         📥 Exportar Tareas al Calendario
                     </button>
@@ -532,6 +639,10 @@
                         <button class="add-button" onclick="addAlertTime()">Agregar</button>
                     </div>
                     <div id="alert-times"></div>
+                    
+                    <button class="export-button test-button" onclick="testAlert()">
+                        🔔 Probar Alerta Ahora
+                    </button>
                 </div>
             </div>
         </div>
@@ -558,6 +669,9 @@
         var tasks = [];
         var alertTimes = ['09:00', '13:00', '18:00'];
         var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        var activeAlert = null;
+        var alertInterval = null;
+        var alertRepeatCount = 0;
 
         function loadData() {
             try {
@@ -645,7 +759,6 @@
             var gridContainer = document.getElementById('calendar-grid');
             gridContainer.innerHTML = '';
 
-            // Crear headers de días de la semana
             var dayHeaders = ['D', 'L', 'M', 'X', 'J', 'V', 'S'];
             for (var i = 0; i < dayHeaders.length; i++) {
                 var header = document.createElement('div');
@@ -661,14 +774,12 @@
             var daysInMonth = lastDay.getDate();
             var startingDayOfWeek = firstDay.getDay();
 
-            // Agregar días vacíos al inicio
             for (var i = 0; i < startingDayOfWeek; i++) {
                 var emptyDay = document.createElement('div');
                 emptyDay.className = 'day-cell empty';
                 gridContainer.appendChild(emptyDay);
             }
 
-            // Agregar días del mes
             for (var day = 1; day <= daysInMonth; day++) {
                 var dayElement = document.createElement('div');
                 dayElement.className = 'day-cell';
@@ -867,7 +978,7 @@
                 var now = new Date();
                 var currentTime = now.toTimeString().slice(0, 5);
                 
-                if (alertTimes.indexOf(currentTime) !== -1) {
+                if (alertTimes.indexOf(currentTime) !== -1 && !activeAlert) {
                     var today = new Date();
                     var todayTasks = [];
                     
@@ -880,16 +991,165 @@
                     }
 
                     if (todayTasks.length > 0) {
-                        var message = '🔔 ¡Tienes ' + todayTasks.length + ' tarea(s) pendiente(s) para hoy!';
-                        var taskList = '';
-                        for (var i = 0; i < todayTasks.length; i++) {
-                            taskList += '• ' + todayTasks[i].text + '\n';
-                        }
-                        
-                        alert(message + '\n\nTareas:\n' + taskList);
+                        showPersistentAlert(todayTasks);
                     }
                 }
             }, 60000);
+        }
+
+        function showPersistentAlert(todayTasks) {
+            if (activeAlert) return;
+
+            alertRepeatCount = 0;
+            playAlertSound();
+
+            var overlay = document.createElement('div');
+            overlay.className = 'alert-overlay';
+            overlay.id = 'alert-overlay';
+
+            var modal = document.createElement('div');
+            modal.className = 'alert-modal';
+
+            var icon = document.createElement('div');
+            icon.className = 'alert-icon';
+            icon.textContent = '🔔';
+
+            var title = document.createElement('div');
+            title.className = 'alert-title';
+            title.textContent = '¡RECORDATORIO DE TAREAS!';
+
+            var message = document.createElement('div');
+            message.className = 'alert-message';
+            message.textContent = 'Tienes ' + todayTasks.length + ' tarea(s) pendiente(s) para hoy:';
+
+            var tasksContainer = document.createElement('div');
+            tasksContainer.className = 'alert-tasks';
+
+            for (var i = 0; i < todayTasks.length; i++) {
+                var taskItem = document.createElement('div');
+                taskItem.className = 'alert-task-item';
+                taskItem.textContent = '📝 ' + todayTasks[i].text;
+                tasksContainer.appendChild(taskItem);
+            }
+
+            var buttonsContainer = document.createElement('div');
+            buttonsContainer.className = 'alert-buttons';
+
+            var dismissButton = document.createElement('button');
+            dismissButton.className = 'alert-button dismiss';
+            dismissButton.textContent = '✅ Entendido';
+            dismissButton.onclick = function() { dismissAlert(); };
+
+            var snoozeButton = document.createElement('button');
+            snoozeButton.className = 'alert-button snooze';
+            snoozeButton.textContent = '⏰ 5 min más';
+            snoozeButton.onclick = function() { snoozeAlert(); };
+
+            var cancelButton = document.createElement('button');
+            cancelButton.className = 'alert-button cancel';
+            cancelButton.textContent = '🚫 Cancelar';
+            cancelButton.onclick = function() { dismissAlert(); };
+
+            var timer = document.createElement('div');
+            timer.className = 'alert-timer';
+            timer.id = 'alert-timer';
+            timer.textContent = 'Se repetirá cada minuto hasta que respondas...';
+
+            buttonsContainer.appendChild(dismissButton);
+            buttonsContainer.appendChild(snoozeButton);
+            buttonsContainer.appendChild(cancelButton);
+
+            modal.appendChild(icon);
+            modal.appendChild(title);
+            modal.appendChild(message);
+            modal.appendChild(tasksContainer);
+            modal.appendChild(buttonsContainer);
+            modal.appendChild(timer);
+
+            overlay.appendChild(modal);
+            document.body.appendChild(overlay);
+
+            activeAlert = overlay;
+
+            alertInterval = setInterval(function() {
+                alertRepeatCount++;
+                playAlertSound();
+                
+                var timerElement = document.getElementById('alert-timer');
+                if (timerElement) {
+                    timerElement.textContent = 'Repetición #' + alertRepeatCount + ' - ¡Responde para parar!';
+                }
+            }, 60000);
+        }
+
+        function dismissAlert() {
+            if (activeAlert) {
+                document.body.removeChild(activeAlert);
+                activeAlert = null;
+            }
+            if (alertInterval) {
+                clearInterval(alertInterval);
+                alertInterval = null;
+            }
+            alertRepeatCount = 0;
+        }
+
+        function snoozeAlert() {
+            dismissAlert();
+            
+            setTimeout(function() {
+                var now = new Date();
+                var todayTasks = [];
+                
+                for (var i = 0; i < tasks.length; i++) {
+                    var task = tasks[i];
+                    var taskDate = new Date(task.date);
+                    if (taskDate.toDateString() === now.toDateString() && !task.completed) {
+                        todayTasks.push(task);
+                    }
+                }
+
+                if (todayTasks.length > 0) {
+                    showPersistentAlert(todayTasks);
+                }
+            }, 5 * 60 * 1000);
+        }
+
+        function playAlertSound() {
+            try {
+                if (navigator.vibrate) {
+                    navigator.vibrate([200, 100, 200, 100, 200]);
+                }
+            } catch (e) {
+                console.log('Error vibration:', e);
+            }
+        }
+
+        function testAlert() {
+            if (activeAlert) {
+                alert('Ya hay una alerta activa. Ciérrala primero.');
+                return;
+            }
+
+            var today = new Date();
+            var todayTasks = [];
+            
+            for (var i = 0; i < tasks.length; i++) {
+                var task = tasks[i];
+                var taskDate = new Date(task.date);
+                if (taskDate.toDateString() === today.toDateString() && !task.completed) {
+                    todayTasks.push(task);
+                }
+            }
+
+            if (todayTasks.length === 0) {
+                todayTasks = [
+                    { text: 'Tarea de prueba 1 - Revisar emails' },
+                    { text: 'Tarea de prueba 2 - Llamar al médico' }
+                ];
+            }
+
+            showPersistentAlert(todayTasks);
         }
 
         function exportToCalendar() {
